@@ -1,82 +1,34 @@
 <?php
-
 namespace AppBundle\Controller;
-
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-
 class GitHutController extends Controller
 {
     /**
-     * @Route("/",name="githut")
+     * @Route("/{username}", name="githut", defaults={ "username": "codereviewvideos" })
      */
-    public function indexAction(Request $request)
+    public function githutAction(Request $request, $username)
     {
-        return $this->render(':githut:index.html.twig', [
-            'avatar_url' => "https://avatars.githubusercontent.com/u/7099082?v=3",
-            'name' => "Laurynas",
-            'login' => "laur1s",
-            'details' => [
-                'company' => 'whatever',
-                'location' => 'who cares',
-                'joined' => '2016_01_01',
-
-            ],
-            'blog' => 'blog.com',
-            'social_data' => [
-                'public repos' => 11,
-                'followers' => 1,
-                'following' => 2,
-            ],
-            'repo_count' => 100,
-            'most_stars' => 50,
-            'repos' => [
-                [
-                    'url' => 'https://codereviewvideos.com',
-                    'name' => 'Code Review Videos',
-                    'description' => 'some repo description',
-                    'stargazers_count' => '999',
-                ],
-                [
-                    'url' => 'http://bbc.co.uk',
-                    'name' => 'The BBC',
-                    'description' => 'not a real repo',
-                    'stargazers_count' => '666',
-                ],
-                [
-                    'url' => 'http://google.co.uk',
-                    'name' => 'Google',
-                    'description' => 'another fake repo description',
-                    'stargazers_count' => '333',
-                ],
-                ],
-            ]);
+        $this->get('github_api')->getRepos($username);
+        return $this->render('githut/index.html.twig', [
+            'username'   => $username,
+        ]);
     }
-
     /**
-     * @Route("/profile/", name="profile")
+     * @Route("/profile/{username}", name="profile")
      */
-    /**public function profileAction(Request $request)
-     *
-     * {
-     * return $this->render(':githut:profile.html.twig', [
-     * 'avatar_url' => "https://avatars.githubusercontent.com/u/7099082?v=3",
-     * 'name' => "Laurynas",
-     * 'login' => "laur1s",
-     * 'details' => [
-     * 'company' => 'whatever',
-     * 'location' => 'who cares',
-     * 'joined' => '2016_01_01',
-     *
-     * ],
-     * 'blog' => 'blog.com',
-     * 'social_data'=>[
-     * 'public repos'=>11,
-     * 'followers'=>1,
-     * 'following'=>2,
-     * ],
-     * ]);
-     *
-     * }**/
+    public function profileAction(Request $request, $username)
+    {
+        $profileData = $this->get('github_api')->getProfile($username);
+        return $this->render('githut/profile.html.twig', $profileData);
+    }
+    /**
+     * @Route("/repos/{username}", name="repos")
+     */
+    public function reposAction(Request $request, $username)
+    {
+        $repoData = $this->get('github_api')->getRepos($username);
+        return $this->render('githut/repos.html.twig', $repoData);
+    }
 }
